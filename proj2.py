@@ -40,7 +40,39 @@ def get_listings_from_search_results(html_file):
         ('Loft in Mission District', 422, '1944564'),  # example
     ]
     """
-    pass
+    tup_list = []
+
+    """id pattern"""
+    z = '.([0-9]+)'
+
+    """review pattern"""
+    y = '\W\s([0-9]+)'
+
+
+    html = open(html_file, "r", encoding="utf-8-sig")
+    text = html.read()
+    html.close()
+    soup = BeautifulSoup(text, 'html.parser')
+    listings = soup.find_all('div', class_='g1qv1ctd')
+
+    for listing in listings:
+        listing_tup = ()
+
+        title = listing.find('div', class_="t1jojoys")
+        name = title.text
+        rough_id = title.get('id')
+        id = re.findall(z, rough_id)
+
+        rating = listing.find('span', class_="t5eq1io")
+        rough_review = rating.get('aria-label')
+        review = re.findall(y, rough_review)
+        if len(review) == 0:
+            review.append(0)
+        
+        tup = (name, int(review[0]), id[0])
+        tup_list.append(tup)
+
+    return tup_list
 
 
 def get_listing_information(listing_id):
@@ -167,10 +199,14 @@ class TestCases(unittest.TestCase):
         # check that the variable you saved after calling the function is a list
         self.assertEqual(type(listings), list)
         # check that each item in the list is a tuple
-
+        for listing in listings:
+            self.assertEqual(type(listing), tuple)
         # check that the first title, number of reviews, and listing id tuple is correct (open the search results html and find it)
-
+        self.assertEqual(listings[0][0], 'Loft in Mission District')
+        self.assertEqual(listings[0][1], 422)
+        self.assertEqual(listings[0][2], '1944564')
         # check that the last title is correct (open the search results html and find it)
+        self.assertEqual(listings[len(listings) - 1][0], 'Guest suite in Mission District')
         pass
 
     def test_get_listing_information(self):
