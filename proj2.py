@@ -56,7 +56,7 @@ def get_listings_from_search_results(html_file):
     listings = soup.find_all('div', class_='g1qv1ctd')
 
     for listing in listings:
-        listing_tup = ()
+        tup = ()
 
         title = listing.find('div', class_="t1jojoys")
         name = title.text
@@ -99,7 +99,38 @@ def get_listing_information(listing_id):
         nightly rate
     )
     """
-    pass
+    z = '.([0-9]+)'
+
+    file_name = "html_files/listing_" + listing_id + ".html"
+    html = open(file_name, "r", encoding="utf-8-sig")
+    text = html.read()
+    html.close()
+    soup = BeautifulSoup(text, 'html.parser')
+
+    policy_tag = soup.find('li', class_="f19phm7j")
+    policy_number = policy_tag.find('span').text
+    if "STR" in policy_number:
+        policy_number = policy_number
+    elif policy_number == "pending":
+        policy_number = "Pending"
+    else:
+        policy_number = "Exempt"
+
+    listing_subtitle_tag = soup.find('div', class_="d1isfkwk")
+    listing_subtitle = listing_subtitle_tag.find('span', class_="ll4r2nl").text
+    if "private" in listing_subtitle:
+        place_type = "Private Room"
+    elif "shared" in listing_subtitle:
+        place_type = "Shared Room"
+    else:
+        place_type = "Entire Room"
+
+    price_tag = soup.find('div', class_="_1jo4hgw")
+    price = price_tag.find('span', class_="_tyxjp1").text
+    price = re.findall(z, price)
+    
+    tup = (policy_number, place_type, int(price[0]))
+    return tup
 
 
 def get_detailed_listing_database(html_file):
@@ -230,11 +261,14 @@ class TestCases(unittest.TestCase):
             # check that the third element in the tuple is an int
             self.assertEqual(type(listing_information[2]), int)
         # check that the first listing in the html_list has the correct policy number
-
+        listing_information = get_listing_information(html_list[0])
+        self.assertEqual(listing_information[0], "STR-0005349")
         # check that the last listing in the html_list has the correct place type
-
+        listing_information = get_listing_information(html_list[4])
+        self.assertEqual(listing_information[1], "Private Room")
         # check that the third listing has the correct cost
-
+        listing_information = get_listing_information(html_list[2])
+        self.assertEqual(listing_information[2], 165)
         pass
 
     def test_get_detailed_listing_database(self):
