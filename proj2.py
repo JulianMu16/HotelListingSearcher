@@ -113,8 +113,10 @@ def get_listing_information(listing_id):
         policy_number = policy_number
     elif policy_number == "pending":
         policy_number = "Pending"
-    else:
+    elif policy_number == "exempt":
         policy_number = "Exempt"
+    else:
+        policy_number = "Invalid"
 
     listing_subtitle_tag = soup.find('h2', class_="_14i3z6h").text
     if "private" in listing_subtitle_tag or "Private" in listing_subtitle_tag:
@@ -213,7 +215,18 @@ def check_policy_numbers(data):
     ]
 
     """
-    pass
+    not_matching = []
+    z = '[2][0][0-9][0-9].[0][0][0-9][0-9][0-9][0-9][S][T][R]'
+    y = '[S][T][R].[0][0][0][0-9][0-9][0-9][0-9]'
+
+    for tup in data:
+        check_one = re.findall(z, tup[3])
+        check_two = re.findall(y, tup[3])
+
+        if len(check_one) == 0 and len(check_two) == 0 and tup[3] != "Pending" and tup[3] != "Exempt":
+            not_matching.append(tup[2])
+    
+    return not_matching
 
 
 def google_scholar_searcher(query):
@@ -367,10 +380,11 @@ class TestCases(unittest.TestCase):
         # check that the return value is a list
         self.assertEqual(type(invalid_listings), list)
         # check that there is exactly one element in the string
-
+        self.assertEqual(len(invalid_listings), 1)
         # check that the element in the list is a string
-
+        self.assertEqual(type(invalid_listings[0]), str)
         # check that the first element in the list is '16204265'
+        self.assertEqual(invalid_listings[0], "16204265")
         pass
 
 
