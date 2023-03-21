@@ -116,11 +116,10 @@ def get_listing_information(listing_id):
     else:
         policy_number = "Exempt"
 
-    listing_subtitle_tag = soup.find('div', class_="d1isfkwk")
-    listing_subtitle = listing_subtitle_tag.find('span', class_="ll4r2nl").text
-    if "private" in listing_subtitle:
+    listing_subtitle_tag = soup.find('h2', class_="_14i3z6h").text
+    if "private" in listing_subtitle_tag:
         place_type = "Private Room"
-    elif "shared" in listing_subtitle:
+    elif "shared" in listing_subtitle_tag:
         place_type = "Shared Room"
     else:
         place_type = "Entire Room"
@@ -147,7 +146,17 @@ def get_detailed_listing_database(html_file):
         ...
     ]
     """
-    pass
+    final_list = []
+
+    search_list = get_listings_from_search_results(html_file)
+
+    for listing in search_list:
+        final_tup = ()
+        info_tup = get_listing_information(listing[2])
+        final_tup = (listing[0], listing[1], listing[2], info_tup[0], info_tup[1], info_tup[2])
+        final_list.append(final_tup)
+
+    return final_list
 
 
 def write_csv(data, filename):
@@ -265,7 +274,7 @@ class TestCases(unittest.TestCase):
         self.assertEqual(listing_information[0], "STR-0005349")
         # check that the last listing in the html_list has the correct place type
         listing_information = get_listing_information(html_list[4])
-        self.assertEqual(listing_information[1], "Private Room")
+        self.assertEqual(listing_information[1], "Entire Room")
         # check that the third listing has the correct cost
         listing_information = get_listing_information(html_list[2])
         self.assertEqual(listing_information[2], 165)
@@ -281,13 +290,25 @@ class TestCases(unittest.TestCase):
             # assert each item in the list of listings is a tuple
             self.assertEqual(type(item), tuple)
             # check that each tuple has a length of 6
+            self.assertEqual(len(item), 6)
 
         # check that the first tuple is made up of the following:
         # 'Loft in Mission District', 422, '1944564', '2022-004088STR', 'Entire Room', 181
+        self.assertEqual(detailed_database[0][0], "Loft in Mission District")
+        self.assertEqual(detailed_database[0][1], 422)
+        self.assertEqual(detailed_database[0][2], "1944564")
+        self.assertEqual(detailed_database[0][3], "2022-004088STR")
+        self.assertEqual(detailed_database[0][4], "Entire Room")
+        self.assertEqual(detailed_database[0][5], 181)
 
         # check that the last tuple is made up of the following:
         # 'Guest suite in Mission District', 324, '467507', 'STR-0005349', 'Entire Room', 165
-
+        self.assertEqual(detailed_database[len(detailed_database) - 1][0], "Guest suite in Mission District")
+        self.assertEqual(detailed_database[len(detailed_database) - 1][1], 324)
+        self.assertEqual(detailed_database[len(detailed_database) - 1][2], "467507")
+        self.assertEqual(detailed_database[len(detailed_database) - 1][3], "STR-0005349")
+        self.assertEqual(detailed_database[len(detailed_database) - 1][4], "Entire Room")
+        self.assertEqual(detailed_database[len(detailed_database) - 1][5], 165)
         pass
 
     def test_write_csv(self):
