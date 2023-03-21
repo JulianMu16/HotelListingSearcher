@@ -117,9 +117,9 @@ def get_listing_information(listing_id):
         policy_number = "Exempt"
 
     listing_subtitle_tag = soup.find('h2', class_="_14i3z6h").text
-    if "private" in listing_subtitle_tag:
+    if "private" in listing_subtitle_tag or "Private" in listing_subtitle_tag:
         place_type = "Private Room"
-    elif "shared" in listing_subtitle_tag:
+    elif "shared" in listing_subtitle_tag or "Shared" in listing_subtitle_tag:
         place_type = "Shared Room"
     else:
         place_type = "Entire Room"
@@ -181,6 +181,16 @@ def write_csv(data, filename):
 
     This function should not return anything.
     """
+    data.sort(key=lambda x: x[5])
+
+    f = open(filename, "w", newline='')
+    writer = csv.writer(f)
+    f.write("Listing Title,Number of Reviews,Listing ID,Policy Number,Place Type,Nightly Rate\n")
+
+    for row in data:
+        writer.writerow(row)
+    
+    f.close()
     pass
 
 
@@ -326,11 +336,26 @@ class TestCases(unittest.TestCase):
         # check that there are 19 lines in the csv
         self.assertEqual(len(csv_lines), 19)
         # check that the header row is correct
-
+        self.assertEqual(csv_lines[0][0], "Listing Title")
+        self.assertEqual(csv_lines[0][1], "Number of Reviews")
+        self.assertEqual(csv_lines[0][2], "Listing ID")
+        self.assertEqual(csv_lines[0][3], "Policy Number")
+        self.assertEqual(csv_lines[0][4], "Place Type")
+        self.assertEqual(csv_lines[0][5], "Nightly Rate")
         # check that the next row is Private room in Mission District,198,23672181,STR-0002892,Private Room,109
-
+        self.assertEqual(csv_lines[1][0], "Private room in Mission District")
+        self.assertEqual(int(csv_lines[1][1]), 198)
+        self.assertEqual(csv_lines[1][2], "23672181")
+        self.assertEqual(csv_lines[1][3], "STR-0002892")
+        self.assertEqual(csv_lines[1][4], "Private Room")
+        self.assertEqual(int(csv_lines[1][5]), 109)
         # check that the last row is Guest suite in Mission District,70,50010586,STR-0004717,Entire Room,310
-
+        self.assertEqual(csv_lines[len(csv_lines) - 1][0], "Guest suite in Mission District")
+        self.assertEqual(int(csv_lines[len(csv_lines) - 1][1]), 70)
+        self.assertEqual(csv_lines[len(csv_lines) - 1][2], "50010586")
+        self.assertEqual(csv_lines[len(csv_lines) - 1][3], "STR-0004717")
+        self.assertEqual(csv_lines[len(csv_lines) - 1][4], "Entire Room")
+        self.assertEqual(int(csv_lines[len(csv_lines) - 1][5]), 310)
         pass
 
     def test_check_policy_numbers(self):
