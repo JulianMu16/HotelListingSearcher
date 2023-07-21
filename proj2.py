@@ -4,37 +4,8 @@ import os
 import csv
 import unittest
 
-
-# IMPORTANT NOTE:
-"""
-If you are getting "encoding errors" while trying to open, read, or write from a file, 
-add the following argument to any of your open() functions:
-
-    encoding="utf-8-sig"
-
-An example of that within the function would be:
-    open("filename", "r", encoding="utf-8-sig")
-
-There are a few special characters present from Airbnb that aren't defined in standard UTF-8 
-(which is what Python runs by default). 
-This is beyond the scope of what you have learned so far in this class, 
-so we have provided this for you just in case it happens to you. Good luck!
-"""
-
 def get_listings_from_search_results(html_file):
     """
-    Write a function that creates a BeautifulSoup object on html_file. Parse
-    through the object and return a list of tuples containing:
-     a string of the title of the listing,
-     an int of the number of reviews of the listing,
-     and a string of the listing id number
-    in the format given below. Make sure to turn the number of reviews into ints.
-
-    The listing id is found in the url of a listing. For example, for
-        https://www.airbnb.com/rooms/1944564
-    the listing id is 1944564.
-.
-
     [
         ('Title of Listing 1', 'Number of Reviews 1', 'Listing ID 1'),  # format
         ('Loft in Mission District', 422, '1944564'),  # example
@@ -77,22 +48,6 @@ def get_listings_from_search_results(html_file):
 
 def get_listing_information(listing_id):
     """
-    Write a function to return relevant information in a tuple from an Airbnb listing id.
-    NOTE: Use the static files in the html_files folder, do NOT send requests to the actual website.
-    Information we're interested in:
-        string - Policy number: either a string of the policy number, "Pending", or "Exempt"
-            This field can be found in the section about the host.
-            Note that this is a text field the lister enters, this could be a policy number, or the word
-            "pending" or "exempt" or many others. Look at the raw data, decide how to categorize them into
-            the three categories.
-        string - Place type: either "Entire Room", "Private Room", or "Shared Room"
-            Note that this data field is not explicitly given from this page. Use the
-            following to categorize the data into these three fields.
-                "Private Room": the listing subtitle has the word "private" in it
-                "Shared Room": the listing subtitle has the word "shared" in it
-                "Entire Room": the listing subtitle has neither the word "private" nor "shared" in it
-        int - Nightly rate: cost of airbnb per night
-.
     (
         policy number,
         place type,
@@ -136,12 +91,6 @@ def get_listing_information(listing_id):
 
 def get_detailed_listing_database(html_file):
     """
-    Write a function that calls the above two functions in order to return
-    the complete listing information using the functions you’ve created.
-    This function takes in a variable representing the location of the search results html file.
-    The return value should be in this format:
-
-
     [
         (Listing Title 1,Number of Reviews 1,Listing ID 1,Policy Number 1,Place Type 1,Nightly Rate 1),
         (Listing Title 2,Number of Reviews 2,Listing ID 2,Policy Number 2,Place Type 2,Nightly Rate 2),
@@ -163,25 +112,11 @@ def get_detailed_listing_database(html_file):
 
 def write_csv(data, filename):
     """
-    Write a function that takes in a list of tuples (called data, i.e. the
-    one that is returned by get_detailed_listing_database()), sorts the tuples in
-    ascending order by cost, writes the data to a csv file, and saves it
-    to the passed filename. The first row of the csv should contain
-    "Listing Title", "Number of Reviews", "Listing ID", "Policy Number", "Place Type", "Nightly Rate",
-    respectively as column headers. For each tuple in data, write a new
-    row to the csv, placing each element of the tuple in the correct column.
-
-    When you are done your CSV file should look like this:
-
     Listing Title,Number of Reviews,Listing ID,Policy Number,Place Type,Nightly Rate
     title1,num_reviews1,id1,policy_number1,place_type1,cost1
     title2,num_reviews2,id2,policy_number2,place_type2,cost2
     title3,num_reviews3,id3,policy_number3,place_type3,cost3
-    ...
-
-    In order of least cost to most cost.
-
-    This function should not return anything.
+    ....
     """
     data.sort(key=lambda x: x[5])
 
@@ -198,16 +133,6 @@ def write_csv(data, filename):
 
 def check_policy_numbers(data):
     """
-    Write a function that takes in a list of tuples called data, (i.e. the one that is returned by
-    get_detailed_listing_database()), and parses through the policy number of each, validating the
-    policy number matches the policy number format. Ignore any pending or exempt listings.
-    Return the listing numbers with respective policy numbers that do not match the correct format.
-        Policy numbers are a reference to the business license San Francisco requires to operate a
-        short-term rental. These come in two forms, where # is a number from [0-9]:
-            20##-00####STR
-            STR-000####
-    .
-    Return value should look like this:
     [
         listing id 1,
         listing id 2,
@@ -227,29 +152,6 @@ def check_policy_numbers(data):
             not_matching.append(tup[2])
     
     return not_matching
-
-
-def google_scholar_searcher(query):
-    """
-    EXTRA POINT
-
-    Parameter: query (str)
-
-    Return: a list of titles in the first page (list)
-    ---
-
-    Write a function that imports requests library of Python
-    and sends a request to google scholar with the passed query.
-    Using BeautifulSoup, 
-    find all titles and return the list of titles you see on page 1. 
-    (that means, you do not need to scrape results on other pages)
-
-    You do not need to write test cases for this question.
-    """
-    import requests
-
-    # YOUR ANSWER HERE
-
 
 class TestCases(unittest.TestCase):
 
